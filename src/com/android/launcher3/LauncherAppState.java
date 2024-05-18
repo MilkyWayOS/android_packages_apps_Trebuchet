@@ -73,7 +73,7 @@ public class LauncherAppState implements SafeCloseable {
 
     private final Context mContext;
     private final LauncherModel mModel;
-    private final IconProvider mIconProvider;
+    private final LauncherIconProvider mIconProvider;
     private final IconCache mIconCache;
     private final InvariantDeviceProfile mInvariantDeviceProfile;
     private final RunnableList mOnTerminateCallback = new RunnableList();
@@ -176,7 +176,7 @@ public class LauncherAppState implements SafeCloseable {
         mContext = context;
 
         mInvariantDeviceProfile = InvariantDeviceProfile.INSTANCE.get(context);
-        mIconProvider = IconProvider.INSTANCE.get(context);
+        mIconProvider = new LauncherIconProvider(context);
         mIconCache = new IconCache(mContext, mInvariantDeviceProfile,
                 iconCacheFileName, mIconProvider);
         mModel = new LauncherModel(context, this, mIconCache, new HiddenAppsFilter(mContext),
@@ -267,10 +267,7 @@ public class LauncherAppState implements SafeCloseable {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
             if (Themes.KEY_THEMED_ICONS.equals(key)) {
-                if (mIconProvider instanceof LauncherIconProvider) {
-                    ((LauncherIconProvider) mIconProvider)
-                        .setIconThemeSupported(Themes.isThemedIconEnabled(mContext));
-                }
+                mIconProvider.setIconThemeSupported(Themes.isThemedIconEnabled(mContext));
                 verifyIconChanged();
             }
         }
